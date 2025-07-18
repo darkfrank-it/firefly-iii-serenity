@@ -19,10 +19,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -225,6 +223,20 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
+        try (InputStream inputStream = Main.class.getClassLoader().getResourceAsStream("logo.txt")) {
+            if (inputStream == null) {
+                logger.error("File logo.txt non trovato!");
+            } else {
+
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        logger.info(line);
+                    }
+                }
+            }
+        }
+
         // Definizione delle opzioni
         Options options = new Options();
         options.addOption("code", true, "Codice di accesso monouso");
@@ -264,8 +276,10 @@ public class Main {
                 logger.error("Non è presente nessun refresh token, tuttavia non è stato passato il code in input");
                 throw new IOException("No refresh token or code provided");
             }
+            logger.info("Refresh token non presente, ottengo access token da code");
             accessToken = obtainAccessToken(config, client, args[0]);
         } else {
+            logger.info("Refresh token presente, rinnovo access token");
             accessToken = renewAccessToken(config, client, refreshToken);
         }
 
