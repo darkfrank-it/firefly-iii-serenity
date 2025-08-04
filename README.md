@@ -107,6 +107,14 @@ skip_ssl_validation=true
 
 ---
 
+## Compilation
+
+```shell
+mvn clean package
+```
+
+In the `target` directory you will find the sealed jar with all the dependencies ready to be run.
+
 ## Dependencies
 
 - Java 11 or greater

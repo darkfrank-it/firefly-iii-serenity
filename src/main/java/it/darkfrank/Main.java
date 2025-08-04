@@ -9,11 +9,13 @@ import org.odftoolkit.odfdom.doc.OdfSpreadsheetDocument;
 import org.odftoolkit.odfdom.doc.table.OdfTable;
 import org.odftoolkit.odfdom.doc.table.OdfTableCell;
 import org.odftoolkit.odfdom.doc.table.OdfTableRow;
+import org.odftoolkit.odfdom.dom.element.office.OfficeAnnotationElement;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.api.InsightApi;
 import org.openapitools.client.model.InsightGroupEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -407,8 +409,26 @@ public class Main {
             if (rowIndex != null) {
                 // Modifica la cella (int colIndex, int rowIndex), A1 corrisponde a (riga 0, colonna 0)
                 var cell = sheet.getCellByPosition(month, rowIndex);
+
+                // Prende l'elemento del DOM per recuperare l'annotazione
+                var cellElement = cell.getOdfElement();
+                // Cerca l'annotazione
+                OfficeAnnotationElement annotation = null;
+                for (Node child = cellElement.getFirstChild(); child != null; child = child.getNextSibling()) {
+                    if (child instanceof OfficeAnnotationElement) {
+                        annotation = (OfficeAnnotationElement) child;
+                        break;
+                    }
+                }
+
+                // Modifica il valore
                 double value = x.getDifferenceFloat() != null ? x.getDifferenceFloat() : 0;
                 cell.setDoubleValue((double) Math.round(Math.abs(value)));
+
+                // Riapplica il commento (se esisteva)
+                if (annotation != null) {
+                    cellElement.appendChild(annotation);
+                }
             } else {
                 logger.warn("no index for : {} \r\n {}", x.getName(), categoryIndex);
             }
