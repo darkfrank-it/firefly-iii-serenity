@@ -123,3 +123,9 @@ In the `target` directory you will find the sealed jar with all the dependencies
 - Apache Commons CLI
 - ODF Toolkit
 - Firefly III OpenAPI Client
+
+## Disclaimer
+
+This project is an independent work and is **not affiliated with, endorsed by, or sponsored by Firefly III** or its maintainers.  
+The name "Firefly III", its logo, and any related trademarks are the property of their respective owners.  
+This project does not claim any ownership over those assets and uses them only for identification purposes where applicable.
