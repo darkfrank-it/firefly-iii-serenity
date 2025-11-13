@@ -6,7 +6,7 @@
 
     <groupId>it.darkfrank</groupId>
     <artifactId>serenity</artifactId>
-    <version>25.08.04</version>
+    <version>25.11.13</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -109,7 +109,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/firefly-iii-6.2.13-v1.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/firefly-iii-6.4.4-v1.yaml</inputSpec>
                             <generatorName>java</generatorName>
                             <library>okhttp-gson</library>
                             <output>${project.build.directory}/generated-sources/openapi</output>

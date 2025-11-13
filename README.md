@@ -93,6 +93,13 @@ The `.ods` spreadsheet must contain a sheet named after the year (e.g., `2025`).
 The first column (A) should list the categories. The application will fill in the corresponding cells 
 with the monthly values.
 
+### Limitation
+
+The ODF Toolkit doesn't recalculates formulas involving the cell that is edited, so you have to do it manually, eg. 
+by selecting all the cell and press F9.
+F9 recalculates the selected formula or cell content.
+If you have a formula in a cell and you select it, pressing F9 will force that formula to be recalculated immediately.
+
 ---
 
 ## SSL Validation

@@ -26,12 +26,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 public class Main {
 
@@ -62,7 +60,7 @@ public class Main {
      * @param config parametri di configurazione
      * @param client OkHttpClient
      * @param code   il codice univoco
-     * @return jwt access token
+     * @return jwt access token or null in caso di 401
      * @throws IOException se il server ritorna un codice diverso da 200
      */
     private static String obtainAccessToken(Properties config, OkHttpClient client, String code) throws IOException {
@@ -82,7 +80,9 @@ public class Main {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+            if (!response.isSuccessful()) {
+                throw new IOException("Unexpected code " + response);
+            }
 
             assert response.body() != null;
             String responseBody = response.body().string();
@@ -94,6 +94,7 @@ public class Main {
             String refreshToken = json.get(REFRESH_TOKEN_KEY).asText();
 
             Properties props = new Properties();
+            props.setProperty(ACCESS_TOKEN_KEY, accessToken);
             props.setProperty(REFRESH_TOKEN_KEY, refreshToken);
             try (FileOutputStream out = new FileOutputStream(SECRETS_FILE)) {
                 props.store(out, "File di configurazione utente");
@@ -105,18 +106,12 @@ public class Main {
         }
     }
 
-    /**
-     * Se è presente il refresh token salvato nel file di properties apposito, allora lo ritorna, altrimenti ritorna <code>null</code>
-     *
-     * @return refresh token oppure null
-     */
     @Nullable
-    private static String isRefreshTokenPresent() {
-
+    private static String isTokenPresent(String tokenKey) {
         try (FileInputStream in = new FileInputStream(SECRETS_FILE)) {
             Properties props = new Properties();
             props.load(in);
-            return props.getProperty(REFRESH_TOKEN_KEY);
+            return props.getProperty(tokenKey);
         } catch (FileNotFoundException e) {
             return null;
         } catch (IOException e) {
@@ -124,6 +119,26 @@ public class Main {
         }
 
         return null;
+    }
+
+    /**
+     * Se è presente il refresh token salvato nel file di properties apposito, allora lo ritorna, altrimenti ritorna <code>null</code>
+     *
+     * @return refresh token oppure null
+     */
+    @Nullable
+    private static String isRefreshTokenPresent() {
+        return isTokenPresent(REFRESH_TOKEN_KEY);
+    }
+
+    /**
+     * Se è presente l'access token salvato nel file di properties apposito, allora lo ritorna, altrimenti ritorna <code>null</code>
+     *
+     * @return refresh token oppure null
+     */
+    @Nullable
+    private static String isAccessTokenPresent() {
+        return isTokenPresent(ACCESS_TOKEN_KEY);
     }
 
     /**
@@ -224,6 +239,43 @@ public class Main {
         }
     }
 
+    public static boolean isTokenExpired(String jwt) {
+        try {
+            // Dividiamo il token in 3 parti: header.payload.signature
+            String[] parts = jwt.split("\\.");
+            if (parts.length < 2) {
+                throw new IllegalArgumentException("Token JWT non valido");
+            }
+
+            // Decodifica del payload (seconda parte)
+            String payloadJson = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+
+            // Cerchiamo il claim "exp" nel JSON (senza librerie, parsing manuale)
+            String expField = "\"exp\":";
+            int startIndex = payloadJson.indexOf(expField);
+            if (startIndex == -1) {
+                throw new IllegalArgumentException("Claim 'exp' non trovato");
+            }
+
+            startIndex += expField.length();
+            int endIndex = payloadJson.indexOf(",", startIndex);
+            if (endIndex == -1) {
+                endIndex = payloadJson.indexOf("}", startIndex);
+            }
+
+            String expValueStr = payloadJson.substring(startIndex, endIndex).trim();
+            long expValue = Long.parseLong(expValueStr);
+
+            // Confronto con il tempo attuale
+            long now = Instant.now().getEpochSecond();
+            return expValue < now;
+
+        } catch (Exception e) {
+            // In caso di errore consideriamo il token non valido/scaduto
+            return true;
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         try (InputStream inputStream = Main.class.getClassLoader().getResourceAsStream("logo.txt")) {
             if (inputStream == null) {
@@ -271,16 +323,21 @@ public class Main {
         OkHttpClient client = getOkHttpClient(config);
 
         // Questo workflow di autenticazione si basa su questa discussione: https://github.com/orgs/firefly-iii/discussions/4595
-        String accessToken;
-        String refreshToken = isRefreshTokenPresent();
-        if (refreshToken == null) {
+        String accessToken = isAccessTokenPresent();
+        if (accessToken == null) {
             if (code == null) {
                 logger.error("Non è presente nessun refresh token, tuttavia non è stato passato il code in input");
                 throw new IOException("No refresh token or code provided");
             }
-            logger.info("Refresh token non presente, ottengo access token da code");
-            accessToken = obtainAccessToken(config, client, args[0]);
-        } else {
+            logger.info("Access token non presente, ottengo access token da code");
+            accessToken = obtainAccessToken(config, client, code);
+        }
+        if (isTokenExpired(accessToken)) {
+            String refreshToken = isRefreshTokenPresent();
+            if (refreshToken == null) {
+                logger.error("token jwt scaduto, ma mon è presente nessun refresh token");
+                throw new IOException("No refresh token found");
+            }
             logger.info("Refresh token presente, rinnovo access token");
             accessToken = renewAccessToken(config, client, refreshToken);
         }
