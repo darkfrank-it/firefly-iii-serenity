@@ -1,5 +1,6 @@
 package it.darkfrank;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.*;
@@ -49,6 +50,26 @@ public class Main {
     private static final String REDIRECT_URI_KEY = "redirect_uri";
     private static final String SKIP_SSL_VERIFICATION_KEY = "skip_ssl_validation";
 
+    private static String extractAndSaveAccessToken(String responseBody) throws JsonProcessingException {
+        // Estrai il token (usando Jackson o altro parser JSON)
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode json = mapper.readTree(responseBody);
+        String accessToken = json.get(ACCESS_TOKEN_KEY).asText();
+        String refreshToken = json.get(REFRESH_TOKEN_KEY).asText();
+
+        Properties props = new Properties();
+        props.setProperty(ACCESS_TOKEN_KEY, accessToken);
+        props.setProperty(REFRESH_TOKEN_KEY, refreshToken);
+        try (FileOutputStream out = new FileOutputStream(SECRETS_FILE)) {
+            props.store(out, "File di configurazione utente");
+            logger.info("Chiavi salvate con successo!");
+        } catch (IOException e) {
+            logger.error("Errore scrittura properties", e);
+        }
+
+        return accessToken;
+    }
+
     /**
      * Ottiene un jwt token di autenticazione, per farlo ha bisogna, per prima cosa creare un client OAuth2
      * seguendo le istruzioni: <a href="https://docs.firefly-iii.org/how-to/firefly-iii/features/api/">api</a>
@@ -87,22 +108,7 @@ public class Main {
             assert response.body() != null;
             String responseBody = response.body().string();
 
-            // Estrai il token (usando Jackson o altro parser JSON)
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode json = mapper.readTree(responseBody);
-            String accessToken = json.get(ACCESS_TOKEN_KEY).asText();
-            String refreshToken = json.get(REFRESH_TOKEN_KEY).asText();
-
-            Properties props = new Properties();
-            props.setProperty(ACCESS_TOKEN_KEY, accessToken);
-            props.setProperty(REFRESH_TOKEN_KEY, refreshToken);
-            try (FileOutputStream out = new FileOutputStream(SECRETS_FILE)) {
-                props.store(out, "File di configurazione utente");
-                logger.info("Chiavi salvate con successo!");
-            } catch (IOException e) {
-                logger.error("Errore scrittura properties", e);
-            }
-            return accessToken;
+            return extractAndSaveAccessToken(responseBody);
         }
     }
 
@@ -171,21 +177,7 @@ public class Main {
             assert response.body() != null;
             String responseBody = response.body().string();
 
-            // Estrai il token (usando Jackson o altro parser JSON)
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode json = mapper.readTree(responseBody);
-            String accessToken = json.get(ACCESS_TOKEN_KEY).asText();
-            refreshToken = json.get(REFRESH_TOKEN_KEY).asText();
-
-            Properties props = new Properties();
-            props.setProperty(REFRESH_TOKEN_KEY, refreshToken);
-            try (FileOutputStream out = new FileOutputStream(SECRETS_FILE)) {
-                props.store(out, "File di configurazione utente");
-                logger.info("Chiavi salvate con successo!");
-            } catch (IOException e) {
-                logger.error("Errore scrittura properties", e);
-            }
-            return accessToken;
+            return extractAndSaveAccessToken(responseBody);
         }
     }
 
@@ -325,18 +317,14 @@ public class Main {
         // Questo workflow di autenticazione si basa su questa discussione: https://github.com/orgs/firefly-iii/discussions/4595
         String accessToken = isAccessTokenPresent();
         if (accessToken == null) {
-            if (code == null) {
-                logger.error("Non è presente nessun refresh token, tuttavia non è stato passato il code in input");
-                throw new IOException("No refresh token or code provided");
-            }
             logger.info("Access token non presente, ottengo access token da code");
             accessToken = obtainAccessToken(config, client, code);
         }
         if (isTokenExpired(accessToken)) {
             String refreshToken = isRefreshTokenPresent();
-            if (refreshToken == null) {
-                logger.error("token jwt scaduto, ma mon è presente nessun refresh token");
-                throw new IOException("No refresh token found");
+            if (refreshToken == null && code == null) {
+                logger.error("Non è presente nessun refresh token, tuttavia non è stato passato il code in input");
+                throw new IOException("No refresh token or code provided");
             }
             logger.info("Refresh token presente, rinnovo access token");
             accessToken = renewAccessToken(config, client, refreshToken);
