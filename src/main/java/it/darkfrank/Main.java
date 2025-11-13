@@ -256,7 +256,7 @@ public class Main {
             }
 
             String expValueStr = payloadJson.substring(startIndex, endIndex).trim();
-            long expValue = Long.parseLong(expValueStr);
+            long expValue = Double.valueOf(expValueStr).longValue();
 
             // Confronto con il tempo attuale
             long now = Instant.now().getEpochSecond();
@@ -264,6 +264,7 @@ public class Main {
 
         } catch (Exception e) {
             // In caso di errore consideriamo il token non valido/scaduto
+            logger.error("Errore nel parse del token JWT!", e);
             return true;
         }
     }
