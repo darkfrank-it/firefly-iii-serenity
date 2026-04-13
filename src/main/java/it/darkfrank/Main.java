@@ -27,9 +27,14 @@ public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     private static final String CONFIG_FILE = "config.properties";
+    private static final String APP_VERSION;
 
     private static final String ACCOUNT_ID_KEY = "account_id";
     private static final String SPREADSHEET_FULL_PATH_KEY = "spreadsheet_full_path";
+
+    static {
+        APP_VERSION = getAppVersion();
+    }
 
     public static void main(String[] args) throws Exception {
         try (InputStream inputStream = Main.class.getClassLoader().getResourceAsStream("logo.txt")) {
@@ -40,6 +45,7 @@ public class Main {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
+                        line = line.replace("{{version}}", APP_VERSION);
                         logger.info(line);
                     }
                 }
@@ -240,6 +246,24 @@ public class Main {
             } else {
                 logger.warn("no index for : {} \r\n {}", x.getName(), categoryIndex);
             }
-        });
-    }
-}
+         });
+     }
+
+     /**
+      * Carica la versione dell'applicazione dal file application.properties
+      *
+      * @return versione dell'app
+      */
+     private static String getAppVersion() {
+         Properties properties = new Properties();
+         try (InputStream inputStream = Main.class.getClassLoader().getResourceAsStream("application.properties")) {
+             if (inputStream != null) {
+                 properties.load(inputStream);
+                 return properties.getProperty("app.version", "unknown");
+             }
+         } catch (IOException e) {
+             logger.warn("Impossibile caricare la versione dell'app", e);
+         }
+         return "unknown";
+     }
+ }
