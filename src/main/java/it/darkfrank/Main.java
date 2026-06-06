@@ -221,8 +221,9 @@ public class Main {
             logger.info("category : {}", x.getName());
             Integer rowIndex = categoryIndex.get(x.getName());
             if (rowIndex != null) {
-                // Modifica la cella (int colIndex, int rowIndex), A1 corrisponde a (riga 0, colonna 0)
-                var cell = sheet.getCellByPosition(month, rowIndex);
+                // getCellByPosition(rowIndex, colIndex) - la colonna è il parametro del mese
+                logger.debug("Setting value for '{}' at row {} col {}", x.getName(), rowIndex, month);
+                var cell = sheet.getCellByPosition(rowIndex, month);
 
                 // Prende l'elemento del DOM per recuperare l'annotazione
 //                var cellElement = cell.getOdfElement();

@@ -1,12 +1,11 @@
 package it.darkfrank;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.*;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -40,12 +39,12 @@ public class OAuthClient {
 
     private static final Logger logger = LoggerFactory.getLogger(OAuthClient.class);
 
-    private static String extractAndSaveAccessToken(String responseBody) throws JsonProcessingException {
+    private static String extractAndSaveAccessToken(String responseBody) {
         // Estrai il token (usando Jackson o altro parser JSON)
         ObjectMapper mapper = new ObjectMapper();
         JsonNode json = mapper.readTree(responseBody);
-        String accessToken = json.get(ACCESS_TOKEN_KEY).asText();
-        String refreshToken = json.get(REFRESH_TOKEN_KEY).asText();
+        String accessToken = json.get(ACCESS_TOKEN_KEY).asString();
+        String refreshToken = json.get(REFRESH_TOKEN_KEY).asString();
 
         Properties props = new Properties();
         props.setProperty(ACCESS_TOKEN_KEY, accessToken);
@@ -95,7 +94,6 @@ public class OAuthClient {
                 throw new IOException("Unexpected code " + response);
             }
 
-            assert response.body() != null;
             String responseBody = response.body().string();
 
             return extractAndSaveAccessToken(responseBody);
@@ -164,7 +162,6 @@ public class OAuthClient {
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
-            assert response.body() != null;
             String responseBody = response.body().string();
 
             return extractAndSaveAccessToken(responseBody);
