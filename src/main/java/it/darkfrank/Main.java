@@ -2,6 +2,7 @@ package it.darkfrank;
 
 import okhttp3.OkHttpClient;
 import org.apache.commons.cli.*;
+import org.apache.commons.cli.help.HelpFormatter;
 import org.jetbrains.annotations.Nullable;
 import org.odftoolkit.odfdom.doc.OdfSpreadsheetDocument;
 import org.odftoolkit.odfdom.doc.table.OdfTable;
@@ -59,7 +60,7 @@ public class Main {
         options.addOption("month", true, "Mese di riferimento");
 
         CommandLineParser parser = new DefaultParser();
-        HelpFormatter formatter = new HelpFormatter();
+        HelpFormatter formatter = HelpFormatter.builder().get();
 
         String code;
         String year;
@@ -71,7 +72,7 @@ public class Main {
             month = cmd.getOptionValue("month");
         } catch (ParseException e) {
             logger.error("Errore nel parsing dei parametri.");
-            formatter.printHelp("Main", options);
+            formatter.printHelp("firefly-iii-serenity.jar", "", options, "", true);
             throw new IOException("Errore nel parsing dei parametri.");
         }
 
@@ -221,29 +222,12 @@ public class Main {
             logger.info("category : {}", x.getName());
             Integer rowIndex = categoryIndex.get(x.getName());
             if (rowIndex != null) {
-                // getCellByPosition(rowIndex, colIndex) - la colonna è il parametro del mese
-                logger.debug("Setting value for '{}' at row {} col {}", x.getName(), rowIndex, month);
-                var cell = sheet.getCellByPosition(rowIndex, month);
-
-                // Prende l'elemento del DOM per recuperare l'annotazione
-//                var cellElement = cell.getOdfElement();
-                // Cerca l'annotazione
-//                OfficeAnnotationElement annotation = null;
-//                for (Node child = cellElement.getFirstChild(); child != null; child = child.getNextSibling()) {
-//                    if (child instanceof OfficeAnnotationElement) {
-//                        annotation = (OfficeAnnotationElement) child;
-//                        break;
-//                    }
-//                }
+                var cell = sheet.getCellByPosition(month, rowIndex);
 
                 // Modifica il valore
                 double value = x.getDifferenceFloat() != null ? x.getDifferenceFloat() : 0;
                 cell.setDoubleValue((double) Math.round(Math.abs(value)));
 
-                // Riapplica il commento (se esisteva)
-//                if (annotation != null) {
-//                    cellElement.appendChild(annotation);
-//                }
             } else {
                 logger.warn("no index for : {} \r\n {}", x.getName(), categoryIndex);
             }
