@@ -1,0 +1,46 @@
+name: Release
+
+# Crea una release su GitHub quando viene pushata una tag di versione (es. 26.09.25)
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Check tag matches pom version
+        run: |
+          POM_VERSION=$(mvn -B -q help:evaluate -Dexpression=project.version -DforceStdout)
+          if [ "$POM_VERSION" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::La tag '$GITHUB_REF_NAME' non corrisponde alla versione del pom.xml '$POM_VERSION'"
+            exit 1
+          fi
+
+      - name: Build
+        run: mvn -B clean package
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp target/firefly-iii-serenity.jar "firefly-iii-serenity-$GITHUB_REF_NAME.jar"
+          gh release create "$GITHUB_REF_NAME" \
+            "firefly-iii-serenity-$GITHUB_REF_NAME.jar" \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes \
+            --verify-tag
