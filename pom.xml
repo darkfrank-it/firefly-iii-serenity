@@ -139,7 +139,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/firefly-iii-6.5.5-v1.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/firefly-iii-v6.6.6-v1.yaml</inputSpec>
                             <generatorName>java</generatorName>
                             <library>okhttp-gson</library>
                             <output>${project.build.directory}/generated-sources/openapi</output>
