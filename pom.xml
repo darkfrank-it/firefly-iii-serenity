@@ -154,6 +154,9 @@
                                 <useJakartaEe>true</useJakartaEe>
                                 <java8>true</java8>
                                 <useRuntimeException>true</useRuntimeException>
+                                <!-- Accetta campi JSON non presenti nella spec (es. "links" restituito da Firefly),
+                                     altrimenti la deserializzazione fallisce -->
+                                <disallowAdditionalPropertiesIfNotPresent>false</disallowAdditionalPropertiesIfNotPresent>
                             </configOptions>
                         </configuration>
                     </execution>
