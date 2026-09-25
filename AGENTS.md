@@ -64,6 +64,6 @@ nella specifica (come `links`), perché l'istanza reale li restituisce.
 
 - Il foglio deve avere un tab chiamato come l'anno; la colonna A contiene le categorie, le colonne B–M i mesi.
 - Le celle con formula non vengono mai sovrascritte; le categorie di Firefly senza movimenti nel mese vengono
-  azzerate.
+  svuotate (cella vuota, non 0).
 - ODF Toolkit non ricalcola le formule: l'utente deve ricalcolarle nel foglio (F9).
 - I file `.properties` non supportano commenti a fine riga (`chiave=valore # commento`).

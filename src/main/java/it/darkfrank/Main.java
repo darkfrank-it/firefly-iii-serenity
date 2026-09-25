@@ -7,6 +7,8 @@ import org.jetbrains.annotations.Nullable;
 import org.odftoolkit.odfdom.doc.OdfSpreadsheetDocument;
 import org.odftoolkit.odfdom.doc.table.OdfTable;
 import org.odftoolkit.odfdom.doc.table.OdfTableCell;
+import org.odftoolkit.odfdom.dom.OdfDocumentNamespace;
+import org.odftoolkit.odfdom.dom.element.table.TableTableCellElementBase;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.api.CategoriesApi;
 import org.openapitools.client.api.InsightApi;
@@ -15,6 +17,8 @@ import org.openapitools.client.model.InsightGroupEntry;
 import org.openapitools.client.model.MetaPagination;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -39,6 +43,7 @@ public class Main {
     /** Numero di righe vuote consecutive in colonna A oltre il quale si smette di cercare categorie. */
     private static final int MAX_CONSECUTIVE_EMPTY_ROWS = 200;
     private static final int CATEGORY_PAGE_SIZE = 100;
+    private static final String CALCEXT_NAMESPACE_URI = "urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0";
 
     static {
         APP_VERSION = getAppVersion();
@@ -291,11 +296,11 @@ public class Main {
                 .forEach(name -> logger.warn("no index for : {}", name));
 
         // Si scrivono tutte le categorie di Firefly presenti nel foglio: quelle senza movimenti nel mese
-        // vengono azzerate, così non restano valori di esecuzioni precedenti.
+        // vengono svuotate, così non restano valori di esecuzioni precedenti.
         Set<String> toWrite = new HashSet<>(fireflyCategories);
         toWrite.addAll(totals.keySet());
         toWrite.retainAll(categoryIndex.keySet());
-        toWrite.forEach(name -> setValueOnSheet(sheet, month, categoryIndex.get(name), name, totals.getOrDefault(name, 0.0)));
+        toWrite.forEach(name -> setValueOnSheet(sheet, month, categoryIndex.get(name), name, totals.get(name)));
     }
 
     /**
@@ -319,14 +324,38 @@ public class Main {
     /**
      * Riporta il valore nel foglio, la colonna corrisponde al mese (B = gennaio).
      * Le celle che contengono una formula non vengono sovrascritte.
+     *
+     * @param value valore da scrivere, <code>null</code> per svuotare la cella
      */
-    private static void setValueOnSheet(OdfTable sheet, int month, int rowIndex, String category, double value) {
+    private static void setValueOnSheet(OdfTable sheet, int month, int rowIndex, String category, @Nullable Double value) {
         OdfTableCell cell = sheet.getCellByPosition(month, rowIndex);
         if (cell.getFormula() != null) {
             logger.warn("La cella della categoria '{}' per il mese {} contiene una formula, non la sovrascrivo", category, month);
             return;
         }
-        cell.setDoubleValue((double) Math.round(Math.abs(value)));
+        if (value == null) {
+            clearCell(cell);
+        } else {
+            cell.setDoubleValue((double) Math.round(Math.abs(value)));
+        }
+    }
+
+    /**
+     * Svuota la cella mantenendone lo stile. Oltre al testo vanno rimossi gli attributi del valore
+     * (<code>office:value-type</code>, <code>office:value</code>, ...), altrimenti la cella resta numerica.
+     */
+    private static void clearCell(OdfTableCell cell) {
+        cell.removeContent(); // separa anche le celle ripetute, così la modifica riguarda solo questa
+        TableTableCellElementBase element = cell.getOdfElement();
+        NamedNodeMap attributes = element.getAttributes();
+        for (int i = attributes.getLength() - 1; i >= 0; i--) {
+            Node attribute = attributes.item(i);
+            String namespace = attribute.getNamespaceURI();
+            if (OdfDocumentNamespace.OFFICE.getUri().equals(namespace)
+                    || (CALCEXT_NAMESPACE_URI.equals(namespace) && "value-type".equals(attribute.getLocalName()))) {
+                element.removeAttributeNS(namespace, attribute.getLocalName());
+            }
+        }
     }
 
     /**
