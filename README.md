@@ -30,8 +30,8 @@ Open the following URL in your browser (replace placeholders):
 https://<base_url>/oauth/authorize?response_type=code&client_id=<client_id>&redirect_uri=<redirect_uri>&scope=&state=
 ```
 
-After logging in, you'll be redirected to the `redirect_uri` with a `code` parameter in the URL. Copy this code, 
-but remember that it will expire in 30 seconds.
+After logging in, you'll be redirected to the `redirect_uri` with a `code` parameter in the URL. Copy this code 
+and use it immediately: it expires shortly.
 
 ---
 
@@ -47,13 +47,16 @@ client_secret=your_client_secret
 redirect_uri=redirect_uri
 firefly_iii_base_url=https://your.firefly.instance
 spreadsheet_full_path=/path/to/your/spreadsheet.ods
-account_id=123  # Optional: Firefly account ID
+# Optional: Firefly account ID (inline comments are not supported in .properties files)
+account_id=123
 skip_ssl_validation=false
 ```
 
 ### `secrets.properties`
 
-This file will be automatically created after the first successful authentication and will store the `refresh_token`.
+This file will be automatically created, in the same directory as `config.properties`, after the first successful
+authentication and will store the `access_token` and the `refresh_token`. On POSIX systems it is readable only by its
+owner. Keep it private: it grants full access to your Firefly III data.
 
 ---
 
@@ -63,9 +66,10 @@ This file will be automatically created after the first successful authenticatio
 
 | Parameter | Description |
 |----------|-------------|
-| `--code` | (Optional) One-time authorization code (required only the first time) |
-| `--year` | (Optional) Year to extract data for |
-| `--month`| (Optional) Month to extract data for |
+| `-c`, `--code` | (Optional) One-time authorization code (required the first time, or when the refresh token is no longer valid) |
+| `-y`, `--year` | (Optional) Year to extract data for |
+| `-m`, `--month`| (Optional) Month to extract data for (1-12) |
+| `--config` | (Optional) Path of the configuration file (default: `config.properties` in the current directory) |
 
 ### Behavior
 
@@ -91,7 +95,13 @@ java -jar firefly-iii-serenity.jar --code=abc123 --year=2024
 
 The `.ods` spreadsheet must contain a sheet named after the year (e.g., `2025`). 
 The first column (A) should list the categories. The application will fill in the corresponding cells 
-with the monthly values.
+with the monthly values (column B = January, ..., column M = December).
+
+- Income, transfer and expense amounts of the same category are summed and the absolute value is written.
+- Categories that exist in Firefly III but have no transactions in a month are set to `0`, so values from
+  previous runs don't linger.
+- Cells containing a formula are never overwritten.
+- If a category has amounts in more than one currency, they are summed without conversion and a warning is logged.
 
 ### Limitation
 
