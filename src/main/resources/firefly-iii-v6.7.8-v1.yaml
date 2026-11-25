@@ -5,7 +5,8 @@ servers:
   - description: "Local development server (do not use)"
     url: http://firefly.sd.internal/api
 info:
-  title: Firefly III API vv6.6.6
+  title: Firefly III API v6.7.8
+
   description: |
     This is the documentation of the Firefly III API. Please report any bugs or issues. You may use the "Authorize" button to try the API below.
     <br><br>
@@ -13,9 +14,9 @@ info:
     <br><br>
     To learn more about the idiosyncrasies of this API, please read about the API in the [Firefly III API documentation](https://docs.firefly-iii.org/references/firefly-iii/api/).
     <br><br>
-    <small>This file was last generated on 2026-07-10 @ 08:26:33 (Europe/Amsterdam)</small>
+    <small>This file was last generated on 2026-11-12 @ 08:55:40 (Europe/Amsterdam)</small>
 
-  version: "vv6.6.6"
+  version: "v6.7.8"
   contact:
     name: James Cole
     email: james@firefly-iii.org
@@ -148,8 +149,8 @@ paths:
           schema:
             type: string
             format: string
-          example: "2026-07-01"
-          description: If the account is an asset account or a liability, the autocomplete will also return the balance of the account on this date.
+          example: "2026-11-01"
+          description: If the account is an asset account or a liability, the autocomplete will also return the balance of the account on this date in the AC title.
         - in: query
           name: types
           description: Optional filter on the account type(s) used in the autocomplete.
@@ -502,74 +503,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AutocompleteCurrencyArray'
-  /v1/autocomplete/currencies-with-code:
-    get:
-      tags:
-        - autocomplete
-      operationId: getCurrenciesCodeAC
-      parameters:
-        - name: X-Trace-Id
-          in: header
-          description: Unique identifier associated with this request.
-          required: false
-          example: 40c71bbb-c676-4f24-83cf-cc725d7d7a00
-          schema:
-            type: string
-            format: uuid
-            example: 40c71bbb-c676-4f24-83cf-cc725d7d7a00
-  
-        - in: query
-          name: query
-          description: The autocomplete search query.
-          required: false
-          schema:
-            type: string
-            format: string
-          example: "string"
-        - in: query
-          name: limit
-          description: The number of items returned.
-          required: false
-          schema:
-            type: integer
-            format: int32
-          example: 10
-      summary: Returns all currencies of the user returned in a basic auto-complete array. This endpoint is DEPRECATED and I suggest you DO NOT use it.
-      responses:
-        "401":
-          description: Unauthenticated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnauthenticatedResponse'
-  
-        "404":
-          description: Page not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundResponse'
-  
-        "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-  
-        "500":
-          description: Internal exception
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InternalExceptionResponse'
-  
-        "200":
-          description: A list of currencies with very basic information and the currency code between brackets. This endpoint is DEPRECATED and I suggest you DO NOT use it.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AutocompleteCurrencyCodeArray'
   /v1/autocomplete/object-groups:
     get:
       tags:
@@ -715,75 +648,7 @@ paths:
                 $ref: '#/components/schemas/ValidationErrorResponse'
   
         "200":
-          description: A list of piggy banks with very basic information.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AutocompletePiggyArray'
-  /v1/autocomplete/piggy-banks-with-balance:
-    get:
-      tags:
-        - autocomplete
-      operationId: getPiggiesBalanceAC
-      parameters:
-        - name: X-Trace-Id
-          in: header
-          description: Unique identifier associated with this request.
-          required: false
-          example: 40c71bbb-c676-4f24-83cf-cc725d7d7a00
-          schema:
-            type: string
-            format: uuid
-            example: 40c71bbb-c676-4f24-83cf-cc725d7d7a00
-  
-        - in: query
-          name: query
-          description: The autocomplete search query.
-          required: false
-          schema:
-            type: string
-            format: string
-          example: "string"
-        - in: query
-          name: limit
-          description: The number of items returned.
-          required: false
-          schema:
-            type: integer
-            format: int32
-          example: 10
-      summary: Returns all piggy banks of the user returned in a basic auto-complete array.
-      responses:
-        "401":
-          description: Unauthenticated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnauthenticatedResponse'
-  
-        "404":
-          description: Page not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundResponse'
-  
-        "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-  
-        "500":
-          description: Internal exception
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InternalExceptionResponse'
-  
-        "200":
-          description: A list of piggy banks with very basic balance information.
+          description: A list of piggy banks with basic information.
           content:
             application/json:
               schema:
@@ -1313,11 +1178,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AutocompleteTransactionArray'
-  /v1/autocomplete/transactions-with-id:
+  /v1/autocomplete/transactions-with-meta:
     get:
       tags:
         - autocomplete
-      operationId: getTransactionsIDAC
+      operationId: getTransactionsWithMeta
       parameters:
         - name: X-Trace-Id
           in: header
@@ -1345,7 +1210,7 @@ paths:
             type: integer
             format: int32
           example: 10
-      summary: Returns all transactions, complemented with their ID, of the user returned in a basic auto-complete array. This endpoint is DEPRECATED and I suggest you DO NOT use it.
+      summary: Returns all transactions, complemented with meta information.
       responses:
         "401":
           description: Unauthenticated
@@ -1383,11 +1248,11 @@ paths:
                 $ref: '#/components/schemas/InternalExceptionResponse'
   
         "200":
-          description: A list of transactions with very basic information. This endpoint is DEPRECATED and I suggest you DO NOT use it.
+          description: Returns all transactions, complemented with meta information.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AutocompleteTransactionIDArray'
+                $ref: '#/components/schemas/AutocompleteTransactionWithMetaArray'
   /v1/chart/account/overview:
     get:
       tags:
@@ -1712,6 +1577,84 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ChartLine'
+  /v1/chart/budget/overview-with-limits:
+    get:
+      tags:
+        - charts
+      summary: Dashboard chart with budget and budget limit information.
+      description: |
+        This endpoint returns the data required to generate a chart with basic budget information, grouped by budget limit when necessary.
+      operationId: getChartBudgetOverviewWithLimits
+      parameters:
+        - name: X-Trace-Id
+          in: header
+          description: Unique identifier associated with this request.
+          required: false
+          example: 40c71bbb-c676-4f24-83cf-cc725d7d7a00
+          schema:
+            type: string
+            format: uuid
+            example: 40c71bbb-c676-4f24-83cf-cc725d7d7a00
+  
+        - in: query
+          name: start
+          description: |
+            A date formatted YYYY-MM-DD.
+          required: true
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: end
+          description: |
+            A date formatted YYYY-MM-DD.
+          required: true
+          schema:
+            type: string
+            format: date
+  
+      responses:
+        "401":
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedResponse'
+  
+        "404":
+          description: Page not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+  
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+  
+        "422":
+          description: 'Validation error. The body will have the exact details.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  
+        "500":
+          description: Internal exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalExceptionResponse'
+  
+        "200":
+          description: Bar chart oriented chart information. Check out the model for more details. Each entry is a line (or bar) in the chart.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChartLine'
   /v1/chart/category/overview:
     get:
       tags:
@@ -1904,6 +1847,20 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/DataDestroyObject'
+        - in: query
+          name: unused
+          description: |
+            Only applies when "objects" is set to: not_assets_liabilities, accounts, asset_accounts, expense_accounts, revenue_accounts or liabilities.
+  
+            If set to true, only unused accounts will be destroyed. This effectively cleans up the autocomplete dropdowns.
+          required: false
+          explode: true
+          schema:
+            type: array
+            items:
+              type: integer
+              format: int64
+            example: [ 1, 2, 3 ]
   /v1/data/export/accounts:
     get:
       summary: Export account data from Firefly III
@@ -4934,7 +4891,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -4943,7 +4900,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
         - in: query
           name: type
           description: Optional filter on the transaction type(s) returned.
@@ -5178,6 +5135,15 @@ paths:
             type: integer
             format: int32
             example: 1
+  
+        - in: query
+          name: active
+          description: Should the endpoint return only active objects or inactive ones? Will be both if not applied.
+          required: false
+          schema:
+            type: boolean
+            format: boolean
+            example: true
   
         - in: query
           name: start
@@ -6046,7 +6012,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -6055,7 +6021,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
       responses:
         "401":
           description: Unauthenticated
@@ -6340,7 +6306,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -6349,7 +6315,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
         - in: query
           name: type
           description: Optional filter on the transaction type(s) returned
@@ -6435,7 +6401,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -6444,7 +6410,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
       responses:
         "401":
           description: Unauthenticated
@@ -6580,7 +6546,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -6589,7 +6555,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
       tags:
         - bills
       responses:
@@ -6883,7 +6849,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -6892,7 +6858,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
       responses:
         "200":
           description: A list of budget limits applicable to this budget.
@@ -7243,7 +7209,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -7252,7 +7218,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
       responses:
         "200":
           description: A list of budget limits.
@@ -7339,7 +7305,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -7348,7 +7314,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
         - in: query
           name: type
           description: Optional filter on the transaction type(s) returned
@@ -7519,7 +7485,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -7528,7 +7494,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
       responses:
         "200":
           description: A list of transactions.
@@ -7615,7 +7581,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -7624,7 +7590,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
       responses:
         "200":
           description: A list of budgets.
@@ -7760,7 +7726,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -7769,7 +7735,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
       tags:
         - budgets
       responses:
@@ -7989,7 +7955,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -7998,7 +7964,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
         - in: query
           name: type
           description: Optional filter on the transaction type(s) returned
@@ -8290,7 +8256,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -8299,7 +8265,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
       tags:
         - categories
       responses:
@@ -9015,7 +8981,7 @@ paths:
           schema:
             type: string
             format: string
-          example: "2026-07-01"
+          example: "2026-11-01"
       responses:
         "200":
           description: A list of currency exchange rates.
@@ -9088,7 +9054,7 @@ paths:
           schema:
             type: string
             format: string
-          example: "2026-07-01"
+          example: "2026-11-01"
       responses:
         "204":
           description: "Currency exchange rate(s) deleted."
@@ -9156,7 +9122,7 @@ paths:
           schema:
             type: string
             format: string
-          example: "2026-07-01"
+          example: "2026-11-01"
       tags:
         - currency_exchange_rates
       requestBody:
@@ -9226,7 +9192,7 @@ paths:
           schema:
             type: string
             format: string
-          example: "2026-07-01"
+          example: "2026-11-01"
       tags:
         - currency_exchange_rates
       requestBody:
@@ -9411,7 +9377,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -9420,7 +9386,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
         - in: query
           name: type
           description: Optional filter on the transaction type(s) returned.
@@ -10710,6 +10676,84 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalExceptionResponse'
   
+  /v1/piggy-banks/{id}/accounts:
+    get:
+      summary: List all accounts linked to a piggy bank.
+      description: List all accounts linked to a piggy bank. A piggy bank can be linked to multiple accounts.
+      operationId: listAccountByPiggyBank
+      tags:
+        - piggy_banks
+      parameters:
+        - name: X-Trace-Id
+          in: header
+          description: Unique identifier associated with this request.
+          required: false
+          example: 40c71bbb-c676-4f24-83cf-cc725d7d7a00
+          schema:
+            type: string
+            format: uuid
+            example: 40c71bbb-c676-4f24-83cf-cc725d7d7a00
+  
+        - in: query
+          name: limit
+          description: Number of items per page. The default pagination is per 50 items.
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 10
+  
+        - in: query
+          name: page
+          description: Page number. The default pagination is per 50 items.
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 1
+  
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            example: "123"
+          description: The ID of the piggy bank.
+      responses:
+        "200":
+          description: A list of accounts
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/AccountArray'
+        "401":
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedResponse'
+  
+        "404":
+          description: Page not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+  
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+  
+        "500":
+          description: Internal exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalExceptionResponse'
+  
   /v1/piggy-banks:
     get:
       summary: List all piggy banks.
@@ -11094,7 +11138,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -11103,7 +11147,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
         - in: query
           name: type
           description: Optional filter on the transaction type(s) returned
@@ -11677,7 +11721,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -11686,7 +11730,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
         - in: query
           name: search_limit
           description: |
@@ -11780,7 +11824,7 @@ paths:
           required: false
           schema:
             type: string
-            example: "2026-07-01"
+            example: "2026-11-01"
             format: date
         - in: query
           name: end
@@ -11789,7 +11833,7 @@ paths:
           required: false
           schema:
             type: string
-            example: "2026-07-31"
+            example: "2026-11-30"
             format: date
         - in: query
           name: accounts[]
@@ -12198,7 +12242,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -12207,7 +12251,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
         - in: query
           name: accounts[]
           description: |
@@ -12287,7 +12331,7 @@ paths:
           required: false
           schema:
             type: string
-            example: "2026-07-01"
+            example: "2026-11-01"
             format: date
         - in: query
           name: end
@@ -12296,7 +12340,7 @@ paths:
           required: false
           schema:
             type: string
-            example: "2026-07-31"
+            example: "2026-11-30"
             format: date
         - in: query
           name: accounts[]
@@ -12672,6 +12716,79 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalExceptionResponse'
   
+  /v1/rules/validate-expression:
+    get:
+      summary: Validate an action expression.
+      description: |
+        Validate an action expression as used in rule actions. Returns whether the submitted expression is valid.
+        If the expression is invalid, a 422 validation error is returned instead.
+      operationId: validateActionExpression
+      tags:
+        - rules
+      parameters:
+        - name: X-Trace-Id
+          in: header
+          description: Unique identifier associated with this request.
+          required: false
+          example: 40c71bbb-c676-4f24-83cf-cc725d7d7a00
+          schema:
+            type: string
+            format: uuid
+            example: 40c71bbb-c676-4f24-83cf-cc725d7d7a00
+  
+        - in: query
+          name: expression
+          description: The action expression to validate.
+          required: true
+          schema:
+            type: string
+            example: "{{ description | upper }}"
+      responses:
+        "200":
+          description: The expression is valid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                    example: true
+        "422":
+          description: 'Validation error. The body will have the exact details.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  
+        "401":
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedResponse'
+  
+        "404":
+          description: Page not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+  
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+  
+        "500":
+          description: Internal exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalExceptionResponse'
+  
   /v1/subscriptions/{id}/attachments:
     get:
       summary: List all attachments uploaded to the subscription.
@@ -12861,7 +12978,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -12870,7 +12987,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
         - in: query
           name: type
           description: Optional filter on the transaction type(s) returned
@@ -12956,7 +13073,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -12965,7 +13082,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
       responses:
         "401":
           description: Unauthenticated
@@ -13101,7 +13218,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -13110,7 +13227,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
       tags:
         - bills
       responses:
@@ -13411,7 +13528,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -13420,7 +13537,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
         - in: query
           name: type
           description: Optional filter on the transaction type(s) returned.
@@ -14119,7 +14236,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: End date for the budget limit list.
@@ -14127,7 +14244,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
       responses:
         "200":
           description: A list of budget limits.
@@ -14373,7 +14490,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -14382,7 +14499,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
         - in: query
           name: type
           description: Optional filter on the transaction type(s) returned
@@ -14396,6 +14513,85 @@ paths:
             application/vnd.api+json:
               schema:
                 $ref: '#/components/schemas/TransactionArray'
+        "401":
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedResponse'
+  
+        "404":
+          description: Page not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+  
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+  
+        "500":
+          description: Internal exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalExceptionResponse'
+  
+  /v1/currencies/{code}/cer:
+    get:
+      summary: List all exchange rates for this currency.
+      description: List all currency exchange rates that have this currency as the source or destination currency.
+      operationId: listExchangeRatesByCurrency
+      tags:
+        - currencies
+      parameters:
+        - name: X-Trace-Id
+          in: header
+          description: Unique identifier associated with this request.
+          required: false
+          example: 40c71bbb-c676-4f24-83cf-cc725d7d7a00
+          schema:
+            type: string
+            format: uuid
+            example: 40c71bbb-c676-4f24-83cf-cc725d7d7a00
+  
+        - in: query
+          name: limit
+          description: Number of items per page. The default pagination is per 50 items.
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 10
+  
+        - in: query
+          name: page
+          description: Page number. The default pagination is per 50 items.
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 1
+  
+        - in: path
+          name: code
+          required: true
+          schema:
+            type: string
+            format: string
+            example: USD
+          description: The currency code.
+      responses:
+        "200":
+          description: A list of currency exchange rates.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/CurrencyExchangeRateArray'
         "401":
           description: Unauthenticated
           content:
@@ -14999,6 +15195,59 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalExceptionResponse'
   
+  /v1/currencies/default:
+    get:
+      summary: Get the default (primary) currency of the current administration.
+      description: Get the default currency of the current administration. This is an alias of `/currencies/primary`.
+      operationId: getDefaultCurrency
+      parameters:
+        - name: X-Trace-Id
+          in: header
+          description: Unique identifier associated with this request.
+          required: false
+          example: 40c71bbb-c676-4f24-83cf-cc725d7d7a00
+          schema:
+            type: string
+            format: uuid
+            example: 40c71bbb-c676-4f24-83cf-cc725d7d7a00
+  
+      tags:
+        - currencies
+      responses:
+        "200":
+          description: 'The default currency'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrencySingle'
+        "401":
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedResponse'
+  
+        "404":
+          description: Page not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+  
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+  
+        "500":
+          description: Internal exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalExceptionResponse'
+  
   /v1/transaction-journals/{id}/links:
     get:
       summary: Lists all the transaction links for an individual journal (individual split).
@@ -15396,7 +15645,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: end
           description: |
@@ -15405,7 +15654,7 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-31"
+            example: "2026-11-30"
         - in: query
           name: type
           description: Optional filter on the transaction type(s) returned.
@@ -16089,6 +16338,100 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalExceptionResponse'
   
+  /v1/search/transactions/count:
+    get:
+      summary: Count transactions matching the given filters.
+      description: |
+        Returns the number of transactions that match the given meta-field filters. This is useful to check for
+        existing transactions (for example to avoid duplicates) before storing new data.
+      operationId: countTransactions
+      tags:
+        - search
+      parameters:
+        - name: X-Trace-Id
+          in: header
+          description: Unique identifier associated with this request.
+          required: false
+          example: 40c71bbb-c676-4f24-83cf-cc725d7d7a00
+          schema:
+            type: string
+            format: uuid
+            example: 40c71bbb-c676-4f24-83cf-cc725d7d7a00
+  
+        - in: query
+          name: external_identifier
+          description: Count transactions with this exact external identifier.
+          required: false
+          schema:
+            type: string
+            example: "abcd-1234"
+        - in: query
+          name: internal_reference
+          description: Count transactions with this exact internal reference.
+          required: false
+          schema:
+            type: string
+            example: "INV-998"
+        - in: query
+          name: notes
+          description: Count transactions whose notes contain this string.
+          required: false
+          schema:
+            type: string
+            example: "groceries"
+        - in: query
+          name: description
+          description: Count transactions with this exact description.
+          required: false
+          schema:
+            type: string
+            example: "Monthly rent"
+        - in: query
+          name: include_deleted
+          description: Whether to include soft-deleted transactions in the count.
+          required: false
+          schema:
+            type: boolean
+            example: false
+      responses:
+        "200":
+          description: The number of matching transactions.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 42
+        "401":
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedResponse'
+  
+        "404":
+          description: Page not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+  
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+  
+        "500":
+          description: Internal exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalExceptionResponse'
+  
   /v1/summary/basic:
     get:
       tags:
@@ -16275,6 +16618,68 @@ paths:
             application/vnd.api+json:
               schema:
                 $ref: '#/components/schemas/UserSingle'
+  /v1/release-notes/{version}:
+    get:
+      tags:
+        - about
+      summary: Release notes endpoint.
+      operationId: getReleaseNotes
+      parameters:
+        - name: X-Trace-Id
+          in: header
+          description: Unique identifier associated with this request.
+          required: false
+          example: 40c71bbb-c676-4f24-83cf-cc725d7d7a00
+          schema:
+            type: string
+            format: uuid
+            example: 40c71bbb-c676-4f24-83cf-cc725d7d7a00
+  
+        - in: path
+          name: version
+          required: true
+          schema:
+            type: string
+            format: string
+            example: 6.8.0
+          description: The version of the release notes to retrieve. Also possible is "v6.7.8" or "develop-2026-10-12". Notice the dash instead of the forward slash.
+      description: |
+        Returns the release notes for a specific version of Firefly III.
+      responses:
+        "401":
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedResponse'
+  
+        "404":
+          description: Page not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+  
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+  
+        "500":
+          description: Internal exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalExceptionResponse'
+  
+        "200":
+          description: The release notes for the specified version.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleaseNotes'
   /v1/batch/finish:
     post:
       tags:
@@ -16537,7 +16942,7 @@ paths:
             type: string
             format: string
             example: d5ea6b5fb774618dd6ad6ba6e0a7f55c
-          description: The CLI token of any user in Firefly III, required to run the cron job.
+          description: The CLI token of any user in Firefly III, required to run the cron job. OR this is the `STATIC_CRON_TOKEN`.
         - in: query
           name: date
           description: |
@@ -16547,12 +16952,12 @@ paths:
           schema:
             type: string
             format: date
-            example: "2026-07-01"
+            example: "2026-11-01"
         - in: query
           name: force
           description: |
             Forces the cron job to fire, regardless of whether it has fired before. This may result
-            in double transactions or weird budgets, so be careful.
+            in double transactions or weird budgets, so be careful. Only system owners can do this.
           required: false
           schema:
             type: boolean
@@ -18165,6 +18570,10 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/AutocompleteTransactionType'
+    AutocompleteTransactionWithMetaArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/AutocompleteTransactionWithMeta'
     AvailableBudgetArray:
       type: object
       required:
@@ -18496,12 +18905,18 @@ components:
         - id
         - name
         - name_with_balance
+        - active
         - type
         - currency_id
         - currency_name
         - currency_code
         - currency_symbol
         - currency_decimal_places
+        - account_currency_id
+        - account_currency_name
+        - account_currency_code
+        - account_currency_symbol
+        - account_currency_decimal_places
       properties:
         id:
           type: string
@@ -18520,7 +18935,7 @@ components:
         active:
           type: boolean
           example: true
-          description: Is the bill active or not?
+          description: Is the account active or not?
         type:
           type: string
           format: string
@@ -18581,6 +18996,7 @@ components:
       required:
         - id
         - name
+        - active
       properties:
         id:
           type: string
@@ -18600,6 +19016,7 @@ components:
       required:
         - id
         - name
+        - active
       properties:
         id:
           type: string
@@ -18702,12 +19119,12 @@ components:
           type: string
           format: string
           example: "2"
-        title:
+        name:
           type: string
           format: string
           example: "Object Group one"
           description: Title of the object group found by an auto-complete search.
-        name:
+        title:
           type: string
           format: string
           example: "Object Group one"
@@ -18983,6 +19400,47 @@ components:
           format: string
           example: "Withdrawal"
           description: Name of the object found by an auto-complete search.
+    AutocompleteTransactionWithMeta:
+      type: object
+      required:
+        - id
+        - name
+        - description
+      properties:
+        id:
+          type: string
+          format: string
+          example: "2"
+          description: The ID of a transaction journal (basically a single split).
+        transaction_group_id:
+          type: string
+          format: string
+          example: "2"
+          description: The ID of the underlying transaction group.
+        name:
+          type: string
+          format: string
+          example: "#12: Transaction"
+          description: Transaction description with ID in the name.
+        description:
+          type: string
+          format: string
+          example: "#12: Transaction"
+          description: Transaction description with ID in the name.
+        date:
+          type: string
+          format: date-time
+          example: "2026-11-01T00:00:00+00:00"
+        currency_code:
+          type: string
+          format: string
+          example: "EUR"
+          description: Currency code.
+        amount:
+          type: string
+          format: amount
+          example: "123.45"
+          description: "The amount that was paid for this subscription in the subscription's currency."
     ChartDataPoint:
       type: object
       properties:
@@ -19057,15 +19515,15 @@ components:
         date:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
         start_date:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
         end_date:
           type: string
           format: date-time
-          example: "2026-07-31T23:59:59+00:00"
+          example: "2026-11-30T23:59:59+00:00"
         type:
           type: string
           format: string
@@ -19750,12 +20208,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         active:
           type: boolean
@@ -19915,7 +20373,7 @@ components:
         current_balance_date:
           type: string
           format: date-time
-          example: "2026-07-31T23:59:59+00:00"
+          example: "2026-11-30T23:59:59+00:00"
           readOnly: true
           description: "The timestamp for this date is always 23:59:59, to indicate it's the balance at the very END of that particular day."
         notes:
@@ -19927,7 +20385,7 @@ components:
           nullable: true
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           description: "Mandatory when the account_role is ccAsset. Moment at which CC payment installments are asked for by the bank."
         credit_card_type:
           $ref: '#/components/schemas/CreditCardTypeProperty'
@@ -19949,7 +20407,7 @@ components:
         opening_balance_date:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           nullable: true
           description: Represents the date of the opening balance.
         liability_type:
@@ -19990,7 +20448,7 @@ components:
           nullable: true
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           description: "Last activity of the account."
     AccountRead:
       type: object
@@ -20052,7 +20510,7 @@ components:
         opening_balance_date:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           nullable: true
           description: Represents the date of the opening balance.
         virtual_balance:
@@ -20092,7 +20550,7 @@ components:
           nullable: true
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           description: "Mandatory when the account_role is ccAsset. Moment at which CC payment installments are asked for by the bank."
         liability_type:
           $ref: '#/components/schemas/LiabilityTypeProperty'
@@ -20162,7 +20620,7 @@ components:
         opening_balance_date:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           nullable: true
         virtual_balance:
           type: string
@@ -20201,7 +20659,7 @@ components:
           nullable: true
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           description: "Mandatory when the account_role is ccAsset. Moment at which CC payment installments are asked for by the bank."
         liability_type:
           $ref: '#/components/schemas/LiabilityTypeProperty'
@@ -20267,12 +20725,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         attachable_type:
           $ref: '#/components/schemas/AttachableType'
@@ -20395,12 +20853,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         object_has_currency_setting:
           type: boolean
@@ -20475,12 +20933,12 @@ components:
         start:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           description: Start date of the available budget.
         end:
           type: string
           format: date-time
-          example: "2026-07-31T23:59:59+00:00"
+          example: "2026-11-30T23:59:59+00:00"
           description: End date of the available budget.
         spent_in_budgets:
           type: array
@@ -20537,12 +20995,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         name:
           type: string
@@ -20642,17 +21100,17 @@ components:
         date:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
         end_date:
           type: string
           format: date-time
-          example: "2026-07-31T23:59:59+00:00"
+          example: "2026-11-30T23:59:59+00:00"
           description: "The date after which this subscription is no longer valid or applicable"
           nullable: true
         extension_date:
           type: string
           format: date-time
-          example: "2026-07-31T23:59:59+00:00"
+          example: "2026-11-30T23:59:59+00:00"
           description: "The date before which the subscription must be renewed (or cancelled)"
           nullable: true
         repeat_freq:
@@ -20718,7 +21176,7 @@ components:
               date:
                 type: string
                 format: date-time
-                example: "2026-07-01T00:00:00+00:00"
+                example: "2026-11-01T00:00:00+00:00"
                 description: "Date the bill was paid."
                 readOnly: true
               subscription_id:
@@ -20809,13 +21267,13 @@ components:
           items:
             type: string
             format: date-time
-            example: "2026-07-01T00:00:00+00:00"
+            example: "2026-11-01T00:00:00+00:00"
             readOnly: true
     
         next_expected_match:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           description: "When the subscription is expected to be due."
           nullable: true
           readOnly: true
@@ -20885,16 +21343,16 @@ components:
         date:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
         end_date:
           type: string
           format: date-time
-          example: "2026-07-31T23:59:59+00:00"
+          example: "2026-11-30T23:59:59+00:00"
           description: "The date after which this bill is no longer valid or applicable"
         extension_date:
           type: string
           format: date-time
-          example: "2026-07-31T23:59:59+00:00"
+          example: "2026-11-30T23:59:59+00:00"
           description: "The date before which the bill must be renewed (or cancelled)"
         repeat_freq:
           $ref: '#/components/schemas/BillRepeatFrequency'
@@ -20954,16 +21412,16 @@ components:
         date:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
         end_date:
           type: string
           format: date-time
-          example: "2026-07-31T23:59:59+00:00"
+          example: "2026-11-30T23:59:59+00:00"
           description: "The date after which this bill is no longer valid or applicable"
         extension_date:
           type: string
           format: date-time
-          example: "2026-07-31T23:59:59+00:00"
+          example: "2026-11-30T23:59:59+00:00"
           description: "The date before which the bill must be renewed (or cancelled)"
         repeat_freq:
           $ref: '#/components/schemas/BillRepeatFrequency'
@@ -21001,12 +21459,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         active:
           type: boolean
@@ -21258,22 +21716,22 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         start:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           description: Start date of the budget limit.
         end:
           type: string
           format: date-time
-          example: "2026-07-31T23:59:59+00:00"
+          example: "2026-11-30T23:59:59+00:00"
           description: End date of the budget limit.
         budget_id:
           type: string
@@ -21429,7 +21887,7 @@ components:
         start:
           type: string
           format: date
-          example: "2026-07-01"
+          example: "2026-11-01"
           description: Start date of the budget limit.
         period:
           type: string
@@ -21441,7 +21899,7 @@ components:
         end:
           type: string
           format: date
-          example: "2026-07-31"
+          example: "2026-11-30"
           description: End date of the budget limit.
         amount:
           type: string
@@ -21464,22 +21922,22 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         start:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           description: Start date of the budget limit.
         end:
           type: string
           format: date-time
-          example: "2026-07-31T23:59:59+00:00"
+          example: "2026-11-30T23:59:59+00:00"
           description: End date of the budget limit.
         budget_id:
           type: string
@@ -21591,17 +22049,28 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         name:
           type: string
           format: string
           example: "Lunch"
+        color:
+          type: string
+          format: string
+          example: "FF0000"
+          description: "The color of the category in HEX format. Firefly III does not use this field, but your app might."
+        last_activity:
+          nullable: true
+          type: string
+          format: date-time
+          example: "2026-11-01T00:00:00+00:00"
+          description: "Last activity of the category."
         notes:
           type: string
           format: string
@@ -21692,6 +22161,12 @@ components:
           format: string
           nullable: true
           example: "Some example notes"
+        color:
+          type: string
+          format: string
+          nullable: true
+          example: "FF0000"
+          description: "The color of the category in HEX format. Firefly III does not use this field, but your app might."
     CategoryUpdate:
       type: object
       required:
@@ -21706,18 +22181,24 @@ components:
           format: string
           nullable: true
           example: "Some example notes"
+        color:
+          type: string
+          format: string
+          nullable: true
+          example: "FF0000"
+          description: "The color of the category in HEX format. Firefly III does not use this field, but your app might."
     CurrencyExchangeProperties:
       type: object
       properties:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         from_currency_id:
           type: string
@@ -21789,7 +22270,7 @@ components:
           type: string
           format: date-time
           readOnly: true
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           description: "Date and time of the exchange rate."
     CurrencyExchangeRateRead:
       type: object
@@ -21827,7 +22308,7 @@ components:
         date:
           type: string
           format: date
-          example: "2026-07-01"
+          example: "2026-11-01"
           description: "The date to which the exchange rate is applicable."
           nullable: false
         from:
@@ -21885,7 +22366,7 @@ components:
         date:
           type: string
           format: date
-          example: "2026-07-01"
+          example: "2026-11-01"
           description: The date to which the exchange rate is applicable.
           nullable: false
         rate:
@@ -21926,12 +22407,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         title:
           type: string
@@ -22079,12 +22560,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         name:
           type: string
@@ -22100,13 +22581,13 @@ components:
         start_date:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           description: "The date you started with this piggy bank."
         target_date:
           type: string
           nullable: true
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           description: "The date you intend to finish saving money."
         order:
           type: integer
@@ -22274,13 +22755,13 @@ components:
         start_date:
           type: string
           format: date
-          example: "2026-07-01"
+          example: "2026-11-01"
           description: The date you started with this piggy bank.
         target_date:
           type: string
           format: date
           nullable: true
-          example: "2026-07-31"
+          example: "2026-11-30"
           description: The date you intend to finish saving money.
         order:
           type: integer
@@ -22336,13 +22817,13 @@ components:
         start_date:
           type: string
           format: date
-          example: "2026-07-01"
+          example: "2026-11-01"
           description: The date you started with this piggy bank.
         target_date:
           type: string
           format: date
           nullable: true
-          example: "2026-07-31"
+          example: "2026-11-30"
           description: The date you intend to finish saving money.
         order:
           type: integer
@@ -22375,11 +22856,11 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
         amount:
           type: string
           format: amount
@@ -22469,12 +22950,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         name:
           type: string
@@ -22495,12 +22976,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         type:
           $ref: '#/components/schemas/RecurrenceTransactionType'
@@ -22516,19 +22997,19 @@ components:
         first_date:
           type: string
           format: date
-          example: "2026-07-31"
+          example: "2026-11-30"
           description: "First time the recurring transaction will fire. Must be after today."
         latest_date:
           type: string
           format: date
-          example: "2026-07-01"
+          example: "2026-11-01"
           description: "Last time the recurring transaction has fired."
           nullable: true
           readOnly: true
         repeat_until:
           type: string
           format: date
-          example: "2026-07-31"
+          example: "2026-11-30"
           description: "Date until the recurring transaction can fire. Use either this field or repetitions."
           nullable: true
         apply_rules:
@@ -22582,12 +23063,12 @@ components:
         first_date:
           type: string
           format: date
-          example: "2026-07-31"
+          example: "2026-11-30"
           description: "First time the recurring transaction will fire. Must be after today."
         repeat_until:
           type: string
           format: date
-          example: "2026-07-31"
+          example: "2026-11-30"
           description: "Date until the recurring transaction can fire. Use either this field or repetitions."
           nullable: true
         nr_of_repetitions:
@@ -22632,12 +23113,12 @@ components:
         first_date:
           type: string
           format: date
-          example: "2026-07-31"
+          example: "2026-11-30"
           description: "First time the recurring transaction will fire."
         repeat_until:
           type: string
           format: date
-          example: "2026-07-31"
+          example: "2026-11-30"
           description: Date until when the recurring transaction can fire. After that date, it's basically inactive. Use either this field or repetitions.
           nullable: true
         nr_of_repetitions:
@@ -22681,12 +23162,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         type:
           $ref: '#/components/schemas/RecurrenceRepetitionType'
@@ -22700,7 +23181,7 @@ components:
             - For 'weekly', it is day of the week between 1 and 7 (Monday - Sunday).
             - For 'ndom', it is '1,2' or '4,5' or something else, where the first number is the week in the month, and the second number is the day in the week (between 1 and 7). '2,3' means: the 2nd Wednesday of the month
             - For 'monthly' it is the day of the month (1 - 31)
-            - For yearly, it is a full date, ie '2026-07-01'. The year you use does not matter.
+            - For yearly, it is a full date, ie '2026-11-01'. The year you use does not matter.
         skip:
           type: integer
           format: int32
@@ -22729,7 +23210,7 @@ components:
           items:
             type: string
             format: date-time
-            example: "2026-07-31T23:59:59+00:00"
+            example: "2026-11-30T23:59:59+00:00"
     RecurrenceRepetitionStore:
       type: object
       required:
@@ -22748,7 +23229,7 @@ components:
             - For 'weekly', it is day of the week between 1 and 7 (Monday - Sunday).
             - For 'ndom', it is '1,2' or '4,5' or something else, where the first number is the week in the month, and the second number is the day in the week (between 1 and 7). '2,3' means: the 2nd Wednesday of the month
             - For 'monthly' it is the day of the month (1 - 31)
-            - For yearly, it is a full date, ie '2026-07-01'. The year you use does not matter.
+            - For yearly, it is a full date, ie '2026-11-01'. The year you use does not matter.
         skip:
           type: integer
           format: int32
@@ -22779,7 +23260,7 @@ components:
             - For 'weekly', it is day of the week between 1 and 7 (Monday - Sunday).
             - For 'ndom', it is '1,2' or '4,5' or something else, where the first number is the week in the month, and the second number is the day in the week (between 1 and 7). '2,3' means: the 2nd Wednesday of the month
             - For 'monthly' it is the day of the month (1 - 31)
-            - For yearly, it is a full date, ie '2026-07-01'. The year you use does not matter.
+            - For yearly, it is a full date, ie '2026-11-01'. The year you use does not matter.
         skip:
           type: integer
           format: int32
@@ -23185,12 +23666,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         title:
           type: string
@@ -23352,12 +23833,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         type:
           $ref: '#/components/schemas/RuleActionKeyword'
@@ -23443,12 +23924,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         title:
           type: string
@@ -23521,12 +24002,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         type:
           $ref: '#/components/schemas/RuleTriggerKeyword'
@@ -23621,12 +24102,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         tag:
           type: string
@@ -23636,7 +24117,7 @@ components:
         date:
           type: string
           format: date
-          example: "2026-07-01"
+          example: "2026-11-01"
           description: The date to which the tag is applicable.
           nullable: true
         description:
@@ -23676,7 +24157,7 @@ components:
         date:
           type: string
           format: date
-          example: "2026-07-01"
+          example: "2026-11-01"
           description: The date to which the tag is applicable.
           nullable: true
         description:
@@ -23714,7 +24195,7 @@ components:
         date:
           type: string
           format: date
-          example: "2026-07-01"
+          example: "2026-11-01"
           description: The date to which the tag is applicable.
           nullable: true
         description:
@@ -23750,12 +24231,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         enabled:
           type: boolean
@@ -23857,12 +24338,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         user:
           type: string
@@ -23941,12 +24422,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         link_type_id:
           type: string
@@ -24109,7 +24590,7 @@ components:
         date:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           description: "Date of the transaction"
         order:
           type: integer
@@ -24504,7 +24985,7 @@ components:
         date:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           description: "Date of the transaction"
         amount:
           type: string
@@ -24735,7 +25216,7 @@ components:
         date:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           description: "Date of the transaction"
         amount:
           type: string
@@ -24990,12 +25471,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         email:
           type: string
@@ -25037,12 +25518,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         in_use:
           type: boolean
@@ -25195,12 +25676,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         active:
           type: boolean
@@ -25340,12 +25821,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         webhook_message_id:
           type: string
@@ -25376,12 +25857,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         updated_at:
           type: string
           format: date-time
-          example: "2026-07-01T00:00:00+00:00"
+          example: "2026-11-01T00:00:00+00:00"
           readOnly: true
         sent:
           type: boolean
@@ -25634,11 +26115,6 @@ components:
           format: string
           example: "$ 12.45"
           description: "The amount formatted according to the users locale"
-        local_icon:
-          type: string
-          format: string
-          example: "balance-scale"
-          description: "Reference to a font-awesome icon without the fa- part."
         sub_title:
           type: string
           format: string
@@ -25671,11 +26147,25 @@ components:
       type: object
       properties:
         recurring_transactions:
-          $ref: '#/components/schemas/CronResultRow'
+          type: array
+          items:
+            $ref: '#/components/schemas/CronResultRow'
         auto_budgets:
-          $ref: '#/components/schemas/CronResultRow'
-        telemetry:
-          $ref: '#/components/schemas/CronResultRow'
+          type: array
+          items:
+            $ref: '#/components/schemas/CronResultRow'
+        exchange_rates:
+          type: array
+          items:
+            $ref: '#/components/schemas/CronResultRow'
+        bill_notifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/CronResultRow'
+        webhooks:
+          type: array
+          items:
+            $ref: '#/components/schemas/CronResultRow'
     CronResultRow:
       type: object
       properties:
@@ -25706,6 +26196,30 @@ components:
           description: |
             If the cron job ran into some kind of an error, this value will be the error message. The success message
             if the job actually ran OK.
+        user:
+          type: string
+          format: string
+          example: "1"
+          nullable: false
+          description: |
+            The user for which this particular job result is.
+    ReleaseNotes:
+      type: object
+      properties:
+        version:
+          type: string
+          format: string
+          example: "6.7.8"
+        release_notes:
+          nullable: true
+          type: string
+          format: string
+          description: The release notes as HTML.
+        release_notes_markdown:
+          nullable: true
+          type: string
+          format: string
+          description: The release notes in Markdown format.
     SystemInfo:
       type: object
       properties:
@@ -25715,12 +26229,12 @@ components:
             version:
               type: string
               format: string
-              example: "6.6.6"
+              example: "6.7.8"
             api_version:
               type: string
               format: string
               description: Same value as the version field.
-              example: "6.6.6"
+              example: "6.7.8"
             php_version:
               type: string
               format: string
