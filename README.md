@@ -14,6 +14,16 @@ and writes them into an `.ods` spreadsheet. It supports OAuth2 authentication an
 - Writes data into a spreadsheet (`.ods`) organized by year and month.
 - Supports flexible date filtering via command-line arguments.
 
+The API client is generated from the Firefly III OpenAPI specification v6.7.8.
+
+---
+
+## Download
+
+Ready-to-run jars are attached to the [GitHub releases](https://github.com/darkfrank-it/firefly-iii-serenity/releases)
+(`firefly-iii-serenity-<version>.jar`). Versions are named after the release date (`YY.MM.DD`, e.g. `26.11.25`).
+Java 17 or greater is required.
+
 ---
 
 ## Getting Started
@@ -88,6 +98,7 @@ owner. Keep it private: it grants full access to your Firefly III data.
 
 ```bash
 java -jar firefly-iii-serenity.jar --code=abc123 --year=2024
+java -jar firefly-iii-serenity.jar --help
 ```
 
 ---
@@ -99,17 +110,15 @@ The first column (A) should list the categories. The application will fill in th
 with the monthly values (column B = January, ..., column M = December).
 
 - Income, transfer and expense amounts of the same category are summed and the absolute value is written.
-- Categories that exist in Firefly III but have no transactions in a month are set to `0`, so values from
-  previous runs don't linger.
+- Categories that exist in Firefly III but have no transactions in a month are cleared (empty cell, not `0`),
+  so values from previous runs don't linger.
 - Cells containing a formula are never overwritten.
 - If a category has amounts in more than one currency, they are summed without conversion and a warning is logged.
 
 ### Limitation
 
-The ODF Toolkit doesn't recalculates formulas involving the cell that is edited, so you have to do it manually, eg. 
-by selecting all the cell and press F9.
-F9 recalculates the selected formula or cell content.
-If you have a formula in a cell and you select it, pressing F9 will force that formula to be recalculated immediately.
+The ODF Toolkit doesn't recalculate formulas involving the edited cells, so you have to do it manually, e.g. by
+selecting all the cells and pressing F9: it forces the selected formulas to be recalculated immediately.
 
 ---
 
@@ -131,7 +140,7 @@ skip_ssl_validation=true
 mvn clean package
 ```
 
-In the `target` directory you will find the shaded jar with all the dependencies ready to be run.
+It requires Java 17 and Maven. The jar with all the dependencies is `target/firefly-iii-serenity.jar`.
 
 ## Dependencies
 

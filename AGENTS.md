@@ -10,7 +10,8 @@ Firefly III tramite API REST e li scrive in un foglio di calcolo `.ods`. Vedere 
 - `src/main/java/it/darkfrank/Main.java`: parsing CLI, caricamento configurazione, esportazione nel foglio.
 - `src/main/java/it/darkfrank/OAuthClient.java`: flusso OAuth2 (code, refresh token), salvataggio token, client HTTP.
 - `src/main/java/it/darkfrank/UsageException.java`: errori dovuti all'utente, mostrati senza stack trace.
-- `src/main/resources/firefly-iii-*-v1.yaml`: specifica OpenAPI di Firefly III da cui viene generato il client.
+- `src/main/resources/firefly-iii-*-v1.yaml`: specifica OpenAPI di Firefly III (attualmente v6.7.8) da cui viene
+  generato il client.
 
 ## Build
 
@@ -23,8 +24,13 @@ mvn clean package
 Il jar con tutte le dipendenze è `target/firefly-iii-serenity.jar`.
 
 Il client API (`org.openapitools.client.*`) viene generato durante la build in `target/generated-sources/openapi`
-dall'`openapi-generator-maven-plugin`: non modificarlo a mano. Per aggiornare le API si sostituisce il file yaml
-in `src/main/resources` e si aggiorna `inputSpec` nel `pom.xml`.
+dall'`openapi-generator-maven-plugin`: non modificarlo a mano. Per aggiornare le API si aggiunge il nuovo file
+yaml in `src/main/resources`, si rimuove il vecchio (`git rm`) e si aggiorna `inputSpec` nel `pom.xml`.
+
+Le specifiche pubblicate da Firefly possono non superare la validazione del generatore. Si corregge lo yaml in modo
+mirato invece di disattivare `validateSpec`, e lo si scrive nel messaggio di commit, perché la correzione va rifatta
+a ogni nuovo download. Nella v6.7.8 il parametro di path `version` di `/v1/release-notes/{version}` era
+`required: false` (i parametri di path devono essere `required: true`).
 
 `disallowAdditionalPropertiesIfNotPresent=false` nel `pom.xml` è necessario: Firefly restituisce campi non
 dichiarati nella specifica (es. `links` in `CategoryArray`) e senza questa opzione il client generato rifiuta
@@ -32,14 +38,19 @@ le risposte.
 
 ## Test
 
-Non ci sono test automatici. Per verificare una modifica senza un'istanza reale di Firefly III si può usare un
-server HTTP finto che risponde a `/oauth/token`, `/api/v1/categories` e `/api/v1/insight/{income,expense,transfer}/category`
-e un `.ods` di prova con un foglio chiamato come l'anno. Le risposte finte devono includere anche campi non presenti
-nella specifica (come `links`), perché l'istanza reale li restituisce.
+Non ci sono test automatici. Una prova minima dopo la build è `java -jar target/firefly-iii-serenity.jar --help`,
+che mostra logo, versione e opzioni ed esce con codice 0.
+
+Per verificare una modifica senza un'istanza reale di Firefly III si può usare un server HTTP finto che risponde
+a `/oauth/token`, `/api/v1/categories` e `/api/v1/insight/{income,expense,transfer}/category` e un `.ods` di prova
+con un foglio chiamato come l'anno. Le risposte finte devono includere anche campi non presenti nella specifica
+(come `links`), perché l'istanza reale li restituisce.
 
 ## Convenzioni
 
 - Commenti, Javadoc e messaggi di log sono in italiano; i messaggi di commit sono in inglese.
+- Il `README.md` è in inglese ed è rivolto agli utenti; questo file è in italiano ed è rivolto agli agenti.
+  Le modifiche al comportamento vanno riportate in entrambi.
 - Gli errori causati da input, configurazione o stato locale dell'utente usano `UsageException`; gli altri
   errori vengono propagati e loggati con stack trace.
 - Non committare mai `config.properties`, `secrets.properties` o fogli `.ods` personali (sono in `.gitignore`):
@@ -58,7 +69,13 @@ nella specifica (come `links`), perché l'istanza reale li restituisce.
   ```
 
   La GitHub Action `.github/workflows/release.yml` compila il progetto, verifica che la tag corrisponda alla
-  versione del `pom.xml` e crea la release su GitHub allegando il jar.
+  versione del `pom.xml` e crea la release su GitHub allegando il jar `firefly-iii-serenity-<versione>.jar`.
+  Si può seguire con `gh run watch`.
+
+## CLI
+
+Opzioni: `-c/--code`, `-y/--year`, `-m/--month`, `--config`, `-h/--help`. Se si aggiunge o modifica un'opzione
+va aggiornata anche la tabella "Command-Line Parameters" nel `README.md`.
 
 ## Note sul comportamento
 
