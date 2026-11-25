@@ -6,7 +6,7 @@
 
     <groupId>it.darkfrank</groupId>
     <artifactId>serenity</artifactId>
-    <version>26.09.25</version>
+    <version>26.11.25</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
