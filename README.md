@@ -70,6 +70,7 @@ owner. Keep it private: it grants full access to your Firefly III data.
 | `-y`, `--year` | (Optional) Year to extract data for |
 | `-m`, `--month`| (Optional) Month to extract data for (1-12) |
 | `--config` | (Optional) Path of the configuration file (default: `config.properties` in the current directory) |
+| `-h`, `--help` | Show the help and exit |
 
 ### Behavior
 

@@ -35,6 +35,7 @@ public class Main {
 
     private static final String DEFAULT_CONFIG_FILE = "config.properties";
     private static final String SECRETS_FILE = "secrets.properties";
+    private static final String USAGE = "firefly-iii-serenity.jar";
     private static final String APP_VERSION;
 
     private static final String ACCOUNT_ID_KEY = "account_id";
@@ -71,6 +72,7 @@ public class Main {
         options.addOption("y", "year", true, "Anno di riferimento");
         options.addOption("m", "month", true, "Mese di riferimento (1-12)");
         options.addOption(null, "config", true, "Percorso del file di configurazione (default: " + DEFAULT_CONFIG_FILE + ")");
+        options.addOption("h", "help", false, "Mostra questo aiuto ed esce");
 
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = HelpFormatter.builder().get();
@@ -79,8 +81,12 @@ public class Main {
         try {
             cmd = parser.parse(options, args);
         } catch (ParseException e) {
-            formatter.printHelp("firefly-iii-serenity.jar", "", options, "", true);
+            formatter.printHelp(USAGE, "", options, "", true);
             throw new UsageException("Errore nel parsing dei parametri: " + e.getMessage(), e);
+        }
+        if (cmd.hasOption("help")) {
+            formatter.printHelp(USAGE, "", options, "", true);
+            return;
         }
         String code = cmd.getOptionValue("code");
 
